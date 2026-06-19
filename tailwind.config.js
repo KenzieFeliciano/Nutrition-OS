@@ -4,19 +4,31 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Karla', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Fraunces', 'Georgia', 'serif'],
-        doto: ['Doto', 'ui-monospace', 'monospace'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        // numeric readouts: Inter with tabular figures (see styles.css .font-doto)
+        doto: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
-        oat: '#e9e4db',
-        cream: '#f7f4ee',
-        card: '#fdfbf7',
-        ink: '#403a32',
-        gold: '#c2a878',
-        butter: '#efe3cd',
-        sage: '#9faf91',
-        clay: '#c98268',
+        // warm ivory / cream canvas (≈80% of the palette)
+        ivory: '#f7f4ef',
+        oat: '#efe9e1',
+        cream: '#f1ece4',
+        card: '#fbf9f6',
+        // mushroom & taupe card surfaces
+        mushroom: '#d9d0c5',
+        taupe: '#b8aa9a',
+        // text
+        ink: '#2e2a26',
+        muted: '#6e665e',
+        // sage / olive health accents (≈15%)
+        sage: '#a8b39f',
+        olive: '#8f9a82',
+        // champagne-gold details (≈5%)
+        gold: '#c9a97d',
+        butter: '#ece4d6',
+        // muted terracotta, reserved for low-coverage status only
+        clay: '#bf8a6f',
       },
     },
   },

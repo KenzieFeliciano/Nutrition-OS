@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  color: #403a32;
-  background: #e9e4db;
+  color: #2e2a26;
+  background: #f7f4ef;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,13 +15,19 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  font-family: 'Karla', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 button,
 input,
 select {
   font: inherit;
+}
+
+/* numeric readouts: Inter with lining tabular figures so columns align */
+.font-doto {
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  letter-spacing: -0.01em;
 }
 
 .bg-hud-grid {
@@ -69,7 +75,7 @@ select {
   height: 520px;
   left: -8%;
   top: -12%;
-  background: radial-gradient(circle, rgba(214, 186, 131, 0.32), transparent 70%);
+  background: radial-gradient(circle, rgba(168, 179, 159, 0.26), transparent 70%);
   animation: blob-drift-1 34s ease-in-out infinite alternate;
 }
 
@@ -78,7 +84,7 @@ select {
   height: 620px;
   right: -12%;
   top: 28%;
-  background: radial-gradient(circle, rgba(240, 222, 160, 0.3), transparent 70%);
+  background: radial-gradient(circle, rgba(195, 176, 140, 0.22), transparent 70%);
   animation: blob-drift-2 42s ease-in-out infinite alternate;
 }
 
@@ -87,7 +93,7 @@ select {
   height: 420px;
   left: 30%;
   bottom: -16%;
-  background: radial-gradient(circle, rgba(255, 250, 235, 0.5), transparent 70%);
+  background: radial-gradient(circle, rgba(255, 252, 247, 0.55), transparent 70%);
   animation: blob-drift-3 28s ease-in-out infinite alternate;
 }
 
@@ -105,13 +111,22 @@ select {
 
 #cursor-glow {
   position: fixed;
-  width: 460px;
-  height: 460px;
-  margin: -230px 0 0 -230px;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(214, 186, 131, 0.14), transparent 65%);
+  background: radial-gradient(circle, rgba(168, 179, 159, 0.1), transparent 68%);
   pointer-events: none;
   z-index: 1;
+}
+
+.emotional-anchor {
+  animation: emotional-breathe 9s ease-in-out infinite;
+}
+
+@keyframes emotional-breathe {
+  0%, 100% { transform: translateY(0); opacity: 0.78; }
+  50% { transform: translateY(-6px); opacity: 1; }
 }
 
 .card-hover {
@@ -120,10 +135,10 @@ select {
 
 .card-hover:hover {
   transform: translateY(-3px);
-  border-color: rgba(194, 168, 120, 0.45);
+  border-color: rgba(168, 179, 159, 0.5);
   box-shadow:
-    0 14px 34px -16px rgba(64, 58, 50, 0.3),
-    0 0 24px -6px rgba(214, 186, 131, 0.35);
+    0 18px 40px -22px rgba(46, 42, 38, 0.22),
+    0 0 26px -8px rgba(168, 179, 159, 0.28);
 }
 
 .dot-in {
@@ -206,19 +221,19 @@ select {
 
 .stage-grid {
   background-image:
-    linear-gradient(rgba(194, 168, 120, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(194, 168, 120, 0.07) 1px, transparent 1px);
-  background-size: 46px 46px;
-  mask-image: radial-gradient(120% 100% at 50% 40%, black 30%, transparent 85%);
+    linear-gradient(rgba(201, 169, 125, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 169, 125, 0.035) 1px, transparent 1px);
+  background-size: 58px 58px;
+  mask-image: radial-gradient(120% 100% at 50% 40%, black 24%, transparent 86%);
 }
 
 .stage-scanlines {
   background: repeating-linear-gradient(
     0deg,
-    rgba(255, 250, 235, 0.028) 0px,
-    rgba(255, 250, 235, 0.028) 1px,
+    rgba(247, 244, 239, 0.018) 0px,
+    rgba(247, 244, 239, 0.018) 1px,
     transparent 1px,
-    transparent 3px
+    transparent 5px
   );
 }
 
@@ -229,7 +244,7 @@ select {
 }
 
 .stage-vignette {
-  background: radial-gradient(ellipse at center, transparent 50%, rgba(12, 9, 6, 0.5) 100%);
+  background: radial-gradient(ellipse at center, transparent 54%, rgba(110, 102, 94, 0.14) 100%);
 }
 
 .hud-bracket::before,
@@ -264,8 +279,8 @@ select {
 }
 
 @keyframes status-pulse {
-  0%, 100% { opacity: 0.55; box-shadow: 0 0 0 0 rgba(194, 168, 120, 0.5); }
-  50% { opacity: 1; box-shadow: 0 0 0 5px rgba(194, 168, 120, 0); }
+  0%, 100% { opacity: 0.55; box-shadow: 0 0 0 0 rgba(168, 179, 159, 0.5); }
+  50% { opacity: 1; box-shadow: 0 0 0 5px rgba(168, 179, 159, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {

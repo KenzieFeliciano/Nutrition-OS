@@ -21,14 +21,14 @@ export const demoState = {
     { name: 'Magnesium', remaining: 140, unit: 'mg' },
   ],
   action: {
-    food: 'Salmon & lemon greens bowl',
-    why: 'Vitamin D is your deepest gap at 22% — salmon closes it fastest, and the greens carry folate alongside.',
+    food: 'Salmon and lemon greens bowl',
+    why: 'Vitamin D is your biggest gap at 22%. Salmon closes it fastest, and the greens add folate.',
     roi: 'Very High',
     impact: 'Vitamin D +74% · Omega-3 +60% · B9 +28%',
     synergy: 'Add olive oil so the fat-soluble vitamins absorb.',
   },
   wisdom: {
-    text: 'In Ayurveda, digestion is a fire called agni, strongest at midday — which is why the largest meal is traditionally eaten at lunch.',
+    text: 'In Ayurveda, digestion is a fire called agni, strongest at midday. That is why the largest meal is traditionally eaten at lunch.',
     tradition: 'Ayurveda',
   },
   meals: [

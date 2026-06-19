@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { ImageUp, Sparkles, X } from 'lucide-react';
+import { ArrowUpRight, ImageUp, Sparkles, X } from 'lucide-react';
 import { demoState } from '../data/demoState.js';
+import { recipes } from '../data/recipes.js';
 import SectionLabel from './SectionLabel.jsx';
 
 const statusColor = {
@@ -95,16 +96,69 @@ function SectionBody({ id }) {
       </div>
     );
   }
+  if (id === 'nutrients') {
+    return (
+      <div className="mt-3 max-h-[24rem] overflow-y-auto pr-1">
+        {demoState.nutrients26.map((nutrient) => (
+          <div key={nutrient.name} className="flex items-center gap-3 border-b border-ink/[0.06] py-2 last:border-b-0">
+            <span className={`h-2 w-2 shrink-0 rounded-full ${statusColor[nutrient.status]}`} />
+            <p className="w-28 shrink-0 text-sm font-medium text-ink">{nutrient.name}</p>
+            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10">
+              <span className={`block h-full rounded-full ${statusColor[nutrient.status]}`} style={{ width: `${Math.min(nutrient.pct, 100)}%` }} />
+            </span>
+            <p className="w-10 shrink-0 text-right font-doto text-base font-bold text-ink">{nutrient.pct}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (id === 'recipes') {
+    return (
+      <div className="mt-2">
+        {recipes.map((recipe) => (
+          <a
+            key={recipe.id}
+            href={recipe.source}
+            target="_blank"
+            rel="noreferrer"
+            className="group block border-b border-ink/[0.06] py-3 last:border-b-0"
+          >
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="text-sm font-semibold text-ink group-hover:text-clay">{recipe.name}</p>
+              <ArrowUpRight size={14} className="shrink-0 text-ink/30 transition group-hover:text-clay" />
+            </div>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-gold">{recipe.targets.join(' · ')} · {recipe.time}</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-ink/55">{recipe.why}</p>
+            <p className="mt-1.5 text-[11px] text-ink/45">{recipe.ingredients.join(', ')}</p>
+          </a>
+        ))}
+      </div>
+    );
+  }
+  if (id === 'podcast') {
+    return (
+      <div className="mt-2 py-2">
+        <p className="text-[10px] uppercase tracking-[0.18em] text-gold">Huberman Lab · Ep. 68</p>
+        <h3 className="mt-2 font-display text-2xl font-medium italic text-ink">Light and Circadian Rhythms</h3>
+        <p className="mt-3 text-sm leading-relaxed text-ink/60">
+          Ten to twenty minutes of morning sunlight sets your circadian rhythm, sharpens focus, and improves sleep.
+        </p>
+      </div>
+    );
+  }
   return null;
 }
 
 const SECTION_TITLES = {
-  score: 'Score',
+  score: 'Nourished score',
   gaps: 'Nutrient state',
   today: 'Today remaining',
   action: 'Best next action',
   meals: 'Meal log',
   wisdom: 'Ancient wisdom',
+  nutrients: 'Nutrients',
+  recipes: 'Recipes',
+  podcast: 'Podcast insight',
 };
 
 export default function FocusOverlay({ entry, onClose }) {

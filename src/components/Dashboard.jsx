@@ -10,6 +10,7 @@ import { demoState } from '../data/demoState.js';
 import AssistantChat from './AssistantChat.jsx';
 import FocusOverlay from './FocusOverlay.jsx';
 import HelixScene from './HelixSceneDemo.jsx';
+import MealLogger from './MealLogger.jsx';
 import SectionLabel from './SectionLabel.jsx';
 import SolBlob from './SolBlob.jsx';
 
@@ -39,8 +40,8 @@ function IntroGreeting({ name, assistantName, onDone }) {
       onClick={onDone}
     >
       <div className="px-6 text-center">
-        <p className="intro-rise text-[10px] font-semibold uppercase tracking-[0.5em] text-ink/40">Nutrient OS</p>
-        <h1 className="intro-rise mt-5 font-display text-5xl font-medium italic text-ink sm:text-7xl">
+        <p className="intro-rise text-[10px] font-semibold uppercase tracking-[0.5em] text-muted">Nutrient OS</p>
+        <h1 className="intro-rise mt-5 font-display text-6xl font-semibold tracking-tight text-ink sm:text-8xl">
           {getGreeting()}, {name}.
         </h1>
         <p className="intro-rise intro-rise-late mt-5 text-[11px] uppercase tracking-[0.3em] text-ink/40">
@@ -309,7 +310,7 @@ function SettingsView({ profile, bloodwork, mealCount, onChange, onAddBloodwork,
       <section className="card-hover rounded-2xl border border-ink/5 bg-card p-5 shadow-sm">
         <SectionLabel>Profile</SectionLabel>
         <label className="mt-4 block">
-          <span className="text-xs text-ink/55">Your name — used in your greeting</span>
+          <span className="text-xs text-ink/55">Your name, used in your greeting</span>
           <input
             className="mt-1.5 w-full rounded-xl border border-ink/10 bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-ink/30"
             type="text"
@@ -318,7 +319,7 @@ function SettingsView({ profile, bloodwork, mealCount, onChange, onAddBloodwork,
           />
         </label>
         <label className="mt-4 block">
-          <span className="text-xs text-ink/55">Assistant name — your AI's identity</span>
+          <span className="text-xs text-ink/55">Assistant name</span>
           <input
             className="mt-1.5 w-full rounded-xl border border-ink/10 bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-ink/30"
             type="text"
@@ -327,7 +328,7 @@ function SettingsView({ profile, bloodwork, mealCount, onChange, onAddBloodwork,
           />
         </label>
         <div className="mt-4">
-          <span className="text-xs text-ink/55">Sex — sets RDA targets</span>
+          <span className="text-xs text-ink/55">Sex, sets RDA targets</span>
           <div className="mt-1.5 grid grid-cols-2 gap-2">
             {['female', 'male'].map((sex) => (
               <button
@@ -384,9 +385,9 @@ function SettingsView({ profile, bloodwork, mealCount, onChange, onAddBloodwork,
             value={profile.activity || 'moderate'}
             onChange={(event) => onChange({ ...profile, activity: event.target.value })}
           >
-            <option value="sedentary">Sedentary — mostly sitting</option>
-            <option value="moderate">Moderate — regular movement or workouts</option>
-            <option value="active">Active — training most days</option>
+            <option value="sedentary">Sedentary, mostly sitting</option>
+            <option value="moderate">Moderate, regular movement or workouts</option>
+            <option value="active">Active, training most days</option>
           </select>
         </label>
         <p className="mt-3 text-xs leading-relaxed text-ink/45">
@@ -461,14 +462,15 @@ export default function Dashboard() {
   const stateRows = [...optimized].sort((a, b) => a.coverage - b.coverage);
   const focusNutrient = stateRows[0];
   const todayRows = [...optimized].sort((a, b) => b.todayRemaining - a.todayRemaining).slice(0, 5);
+  const recentMeals = [...nutritionState.meals].slice(-5).reverse();
 
   const name = nutritionState.profile.name || 'Kenzie';
   const assistantName = nutritionState.profile.assistantName || 'Sol';
   const solThinking = isAnalyzing || isChatThinking;
   const assistantLine = !nutritionState.meals.length
-    ? `I'm ready when you are — log your first meal and I'll start mapping your nutrient state.`
+    ? `Log your first meal in Settings and I'll start mapping your nutrient state.`
     : focusNutrient && focusNutrient.coverage < 80
-      ? `Tracking ${optimized.length} nutrients. ${focusNutrient.name} is your deepest gap at ${focusNutrient.coverage}% — ${recommendation.food.toLowerCase()} would close it fastest.`
+      ? `Tracking ${optimized.length} nutrients. ${focusNutrient.name} is your biggest gap at ${focusNutrient.coverage}%. ${recommendation.food} closes it fastest.`
       : 'Everything I track is in a healthy range. Keep your next meal balanced and varied.';
 
   const contextSummary = useMemo(() => {
@@ -481,7 +483,7 @@ export default function Dashboard() {
       `Lowest nutrient states: ${gaps}.`,
       `Largest remaining today: ${today}.`,
       `Recent meals: ${recentMeals}.`,
-      `Current recommendation: ${recommendation.food} — ${recommendation.whyNow}`,
+      `Current recommendation: ${recommendation.food}. ${recommendation.whyNow}`,
     ].join('\n');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model, nutritionState.meals, nutritionState.profile, recommendation]);
@@ -541,7 +543,7 @@ export default function Dashboard() {
       setAnalysis(parsed);
       setPendingFoods(foods);
       if (!foods.length) {
-        setError('I could not turn that into foods — try describing it a little differently.');
+        setError('I could not turn that into foods. Try describing it differently.');
       }
     } catch (apiError) {
       setError(apiError.message);
@@ -560,7 +562,7 @@ export default function Dashboard() {
     setPendingFoods((items) =>
       items.map((item) => {
         if (item.id !== itemId) return item;
-        if (!result) return { ...item, searchError: 'USDA search failed — try again in a moment.' };
+        if (!result) return { ...item, searchError: 'USDA search failed. Try again in a moment.' };
         const matches = sortMatches(result.foods || []);
         return {
           ...item,
@@ -631,7 +633,7 @@ export default function Dashboard() {
       setToast({ deltas });
       handleCancelPending();
       if (failedNames.length) {
-        setError(`Meal logged without ${failedNames.join(', ')} — that USDA lookup kept failing. Re-log it on its own if you like.`);
+        setError(`Meal logged without ${failedNames.join(', ')}. That USDA lookup kept failing, so re-log it on its own if you like.`);
       }
     } catch (saveError) {
       setError(saveError.message);
@@ -677,7 +679,7 @@ export default function Dashboard() {
 
   if (view === 'home') {
     return (
-      <main className="relative h-screen overflow-hidden bg-[#faf8f4] text-ink">
+      <main className="relative h-screen overflow-hidden bg-ivory text-ink">
         {showIntro && <IntroGreeting name={name} assistantName={assistantName} onDone={() => setShowIntro(false)} />}
         <HelixScene onFocus={setFocusEntry} />
 
@@ -686,12 +688,14 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center gap-2">
               <span className="status-pulse h-1.5 w-1.5 rounded-full bg-gold" />
-              <p className="text-[9px] font-semibold uppercase tracking-[0.4em] text-ink/50">Nutrient OS // personal vortex</p>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.4em] text-ink/50">Nutrient OS // living nutrition map</p>
             </div>
-            <h1 className="mt-2.5 font-display text-3xl font-medium italic text-ink/90">
+            <h1 className="mt-2.5 font-display text-4xl font-semibold tracking-tight text-ink">
               {getGreeting()}, {name}.
             </h1>
-            <p className="mt-1.5 max-w-sm text-[11px] leading-relaxed text-ink/55">{assistantLine}</p>
+            <p className="mt-1.5 max-w-sm text-[11px] leading-relaxed text-muted">
+              A living map of your nutrition. Drift the cards and tap any one to see your score, gaps, and the reasoning behind each recommendation.
+            </p>
           </div>
           <div className="flex flex-col items-end gap-2.5">
             {navButtons(false)}
@@ -701,15 +705,26 @@ export default function Dashboard() {
                 <span className="text-ink/40">/100</span>
               </p>
               <p className="mt-1 text-[8px] uppercase tracking-[0.24em] text-ink/45">
-                {demoState.nutrients26.length + 6} signals · demo data
+                {demoState.nutrients26.length + 6} signals mapped
               </p>
             </div>
           </div>
         </header>
 
+
+
+        <div className="emotional-anchor pointer-events-none absolute bottom-16 left-5 z-10 hidden max-w-[19rem] rounded-[1.75rem] border border-white/45 bg-cream/70 px-5 py-4 shadow-2xl shadow-ink/10 backdrop-blur-xl sm:block">
+          <p className="font-display text-xl italic leading-tight text-ink">
+            Vitamin D is improving faster than expected.
+          </p>
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted/80">
+            Four nutrients reached target this week
+          </p>
+        </div>
+
         <div className="pointer-events-none absolute inset-x-0 bottom-5 z-10 flex justify-center">
           <p className="text-[9px] uppercase tracking-[0.26em] text-ink/45">
-            scroll to spiral · drag to spin · click a card to focus
+            drift the map · click a card to focus · pathways show why
           </p>
         </div>
 
@@ -744,13 +759,31 @@ export default function Dashboard() {
               </span>
               <SectionLabel className="!tracking-[0.4em]">Nutrient OS</SectionLabel>
             </div>
-            <h1 className="mt-2 font-display text-3xl font-medium italic">
+            <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">
               {getGreeting()}, {name}.
             </h1>
-            <p className="mt-1.5 max-w-2xl text-xs leading-relaxed text-ink/55">{assistantLine}</p>
+            <p className="mt-1.5 max-w-2xl text-xs leading-relaxed text-muted">{assistantLine}</p>
           </div>
           {navButtons(false)}
         </header>
+
+        <div className="mx-auto mt-6 w-full max-w-xl">
+          <MealLogger
+            imagePreview={imagePreview}
+            pendingFoods={pendingFoods}
+            analysis={analysis}
+            isAnalyzing={isAnalyzing}
+            isSaving={isSaving}
+            error={error}
+            onAnalyzeFile={handleAnalyzeFile}
+            onLogText={handleLogText}
+            onSelectMatch={handleSelectMatch}
+            onSearchAgain={handleSearchAgain}
+            onConfirmMeal={handleConfirmMeal}
+            onCancel={handleCancelPending}
+            recentMeals={recentMeals}
+          />
+        </div>
 
         <SettingsView
           profile={nutritionState.profile}
