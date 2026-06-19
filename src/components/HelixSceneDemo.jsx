@@ -23,7 +23,7 @@ const ELLIPSE = {
   radius: 4.1,            // horizontal semi-axis
   height: 2.7,            // vertical semi-axis (the tilt of the ring)
   scale: 1.02,
-  curveK: 0.22,           // gentle convex bend on each (camera-facing) card
+  curveK: 0.42,           // visible convex bend on each (camera-facing) card
   planeSegX: 32,
   planeSegY: 12,
 };
@@ -254,6 +254,9 @@ export default function HelixSceneDemo({ onFocus }) {
     // Cards on the ellipse (built once the atlas is ready).
     let cardMesh = null;
     let N = 0;
+    let atlasTexture = null;
+    let refreshCard = null;
+    let rotateTimer = null;
     const hitProxies = [];
     const raycaster = new THREE.Raycaster();
     const uniforms = {
@@ -279,19 +282,29 @@ export default function HelixSceneDemo({ onFocus }) {
       uChroma: { value: 0.0012 },
     };
 
-    buildWellnessAtlas().then(({ canvas, cols, rows, entries, tileAspect }) => {
+    buildWellnessAtlas().then(({ canvas, cols, rows, entries, tileAspect, refresh }) => {
       if (disposed) return;
       entriesRef.current = entries;
       N = entries.length;
+      refreshCard = refresh;
 
       const atlasTex = new THREE.CanvasTexture(canvas);
       atlasTex.colorSpace = THREE.SRGBColorSpace;
       atlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
       atlasTex.minFilter = THREE.LinearFilter;
       atlasTex.magFilter = THREE.LinearFilter;
+      atlasTexture = atlasTex;
       uniforms.uAtlas.value = atlasTex;
       uniforms.uCols.value = cols;
       uniforms.uRows.value = rows;
+
+      // Keep the living cards alive: rotate Ancient Wisdom + Podcast every ~8.5s.
+      rotateTimer = setInterval(() => {
+        if (disposed) return;
+        const a = refresh('wisdom');
+        const b = refresh('podcast');
+        if (a || b) atlasTex.needsUpdate = true;
+      }, 8500);
 
       const planeW = 2.5;
       const planeH = planeW / tileAspect;
@@ -376,7 +389,13 @@ export default function HelixSceneDemo({ onFocus }) {
       const hits = raycaster.intersectObjects(hitProxies, false);
       if (hits.length) {
         const entry = entriesRef.current[hits[0].object.userData.entryIndex];
-        if (entry) onFocus?.(entry);
+        if (entry) {
+          // Clicking a living card also cycles it, then shows the new content.
+          if (refreshCard && (entry.id === 'wisdom' || entry.id === 'podcast')) {
+            if (refreshCard(entry.id) && atlasTexture) atlasTexture.needsUpdate = true;
+          }
+          onFocus?.(entry);
+        }
       }
     };
 
@@ -446,6 +465,7 @@ export default function HelixSceneDemo({ onFocus }) {
 
     return () => {
       disposed = true; running = false; cancelAnimationFrame(frame);
+      if (rotateTimer) clearInterval(rotateTimer);
       observer.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
       container.removeEventListener('wheel', onWheel);

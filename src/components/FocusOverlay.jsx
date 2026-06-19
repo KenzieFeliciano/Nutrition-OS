@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ArrowUpRight, ImageUp, Sparkles, X } from 'lucide-react';
 import { demoState } from '../data/demoState.js';
 import { recipes } from '../data/recipes.js';
+import { currentPodcast, currentWisdom } from '../data/liveCards.js';
 import SectionLabel from './SectionLabel.jsx';
 
 const statusColor = {
@@ -89,10 +90,11 @@ function SectionBody({ id }) {
     );
   }
   if (id === 'wisdom') {
+    const wisdom = currentWisdom();
     return (
       <div className="flex min-h-[14rem] flex-col justify-center py-4">
-        <p className="font-display text-xl font-medium italic leading-relaxed text-ink">“{demoState.wisdom.text}”</p>
-        <p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-ink/45">{demoState.wisdom.tradition}</p>
+        <p className="font-display text-xl font-medium italic leading-relaxed text-ink">“{wisdom.text}”</p>
+        <p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-ink/45">{wisdom.tradition}</p>
       </div>
     );
   }
@@ -136,13 +138,13 @@ function SectionBody({ id }) {
     );
   }
   if (id === 'podcast') {
+    const podcast = currentPodcast();
     return (
       <div className="mt-2 py-2">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-gold">Huberman Lab · Ep. 68</p>
-        <h3 className="mt-2 font-display text-2xl font-medium italic text-ink">Light and Circadian Rhythms</h3>
-        <p className="mt-3 text-sm leading-relaxed text-ink/60">
-          Ten to twenty minutes of morning sunlight sets your circadian rhythm, sharpens focus, and improves sleep.
-        </p>
+        <p className="text-[10px] uppercase tracking-[0.18em] text-gold">{podcast.show}</p>
+        <h3 className="mt-2 font-display text-2xl font-medium italic text-ink">{podcast.title}</h3>
+        <p className="mt-3 text-sm leading-relaxed text-ink/60">{podcast.quote}</p>
+        <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-ink/40">{podcast.meta}</p>
       </div>
     );
   }

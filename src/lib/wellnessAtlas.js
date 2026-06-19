@@ -1,5 +1,6 @@
 import { demoState } from '../data/demoState.js';
 import { recipes } from '../data/recipes.js';
+import { advancePodcast, advanceWisdom, currentPodcast, currentWisdom } from '../data/liveCards.js';
 
 const TILE_W = 600;
 const TILE_H = 460;
@@ -173,39 +174,37 @@ function drawWisdom(ctx, x, y) {
   ctx.roundRect(x + 40, y + 86, TILE_W - 80, TILE_H - 138, 22);
   ctx.fill();
 
+  const wisdom = currentWisdom();
   ctx.fillStyle = INK;
   ctx.font = `italic 500 30px ${DISPLAY}`;
-  wrapText(ctx, demoState.wisdom.text, x + 66, y + 148, TILE_W - 132, 38, 6);
+  wrapText(ctx, wisdom.text, x + 66, y + 148, TILE_W - 132, 38, 6);
 
   ctx.fillStyle = OLIVE;
   ctx.font = `800 14px ${BODY}`;
-  spacedCaps(ctx, demoState.wisdom.tradition, x + 66, y + TILE_H - 58, 2);
+  spacedCaps(ctx, wisdom.tradition, x + 66, y + TILE_H - 58, 2);
 }
 
 function drawPodcast(ctx, x, y) {
   cardBase(ctx, x, y, 'Podcast insight', '04', { top: '#d7cec3', bottom: '#c8baaa' });
 
+  const podcast = currentPodcast();
   ctx.fillStyle = CREAM;
   ctx.beginPath();
   ctx.roundRect(x + 40, y + 78, 198, 32, 16);
   ctx.fill();
-  drawNode(ctx, x + 58, y + 94, 'Huberman Lab', true);
+  drawNode(ctx, x + 58, y + 94, podcast.show, true);
 
   ctx.fillStyle = INK;
   ctx.font = `italic 500 34px ${DISPLAY}`;
-  wrapText(ctx, 'Morning light is a sleep nutrient.', x + 42, y + 174, TILE_W - 84, 42, 2);
+  wrapText(ctx, podcast.title, x + 42, y + 174, TILE_W - 84, 42, 2);
 
   ctx.fillStyle = MUTED;
   ctx.font = `500 17px ${BODY}`;
-  wrapText(
-    ctx,
-    'Ten to twenty minutes of outdoor light helps set the rhythm your appetite, focus, and recovery follow all day.',
-    x + 44, y + 264, TILE_W - 88, 27, 4,
-  );
+  wrapText(ctx, podcast.quote, x + 44, y + 264, TILE_W - 88, 27, 4);
 
   ctx.fillStyle = 'rgba(46,42,38,0.38)';
   ctx.font = `700 12px ${BODY}`;
-  spacedCaps(ctx, 'Light and circadian rhythms · 4 days ago', x + 44, y + TILE_H - 44, 1.5);
+  spacedCaps(ctx, podcast.meta, x + 44, y + TILE_H - 44, 1.5);
 }
 
 function drawAction(ctx, x, y) {
@@ -300,12 +299,26 @@ export async function buildWellnessAtlas() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const entries = [];
+  const tileMeta = {};
   tiles.forEach((tile, i) => {
     const cx = (i % cols) * TILE_W;
     const cy = Math.floor(i / cols) * TILE_H;
     tile.draw(ctx, cx, cy);
     entries.push({ id: tile.id, kind: 'info', tileIndex: i });
+    tileMeta[tile.id] = { x: cx, y: cy, draw: tile.draw };
   });
 
-  return { canvas, cols, rows, count, entries, tileAspect: TILE_W / TILE_H };
+  // Advance a live card's content and repaint just its tile. Returns true if the
+  // caller should flag the texture for upload.
+  function refresh(id) {
+    const meta = tileMeta[id];
+    if (!meta) return false;
+    if (id === 'wisdom') advanceWisdom();
+    else if (id === 'podcast') advancePodcast();
+    else return false;
+    meta.draw(ctx, meta.x, meta.y);
+    return true;
+  }
+
+  return { canvas, cols, rows, count, entries, tileAspect: TILE_W / TILE_H, refresh };
 }
